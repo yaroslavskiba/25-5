@@ -3,7 +3,11 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 
 const App = () => {
-  return <p>Hello 25/5O</p>;
+  return (
+    <>
+      <p>Hello 25/5O</p>
+    </>
+  );
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
