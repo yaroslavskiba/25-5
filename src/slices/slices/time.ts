@@ -3,14 +3,16 @@ import { createSlice } from '@reduxjs/toolkit';
 export type state = {
   break: number;
   session: number;
+  seconds: number;
 };
 
 const initialState: state = {
   break: 5,
   session: 25,
+  seconds: 0,
 };
 
-const timeSlice = createSlice({
+const controlSlice = createSlice({
   name: 'timeCounter',
   initialState,
   reducers: {
@@ -26,9 +28,13 @@ const timeSlice = createSlice({
     decrementSession: (state) => {
       state.session -= 1;
     },
+    decrementSeconds: (state) => {
+      state.seconds -= 1;
+    },
   },
 });
 
-export const { incrementBreak, decrementBreak, incrementSession, decrementSession } = timeSlice.actions;
+export const { incrementBreak, decrementBreak, incrementSession, decrementSession, decrementSeconds } =
+  controlSlice.actions;
 
-export default timeSlice.reducer;
+export default controlSlice.reducer;
