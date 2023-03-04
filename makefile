@@ -1,5 +1,5 @@
-insttall:
-		sudo mpm insttall
+install:
+		npm install
 
 fix:
 		npx eslint . --fix
