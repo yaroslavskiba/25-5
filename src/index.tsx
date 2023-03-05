@@ -30,8 +30,16 @@ const App = () => {
     setPower(false);
   };
   const handleRestart = () => {
-    setSleep(300);
-    setSession(1500);
+    if (session === 0 && sleep === 0) {
+      setSleep(300);
+      setSession(1500);
+      setCurrent({ sessionCurrent: 0, sleepCurrent: 0 });
+    } else {
+      handlePause();
+      setSleep(300);
+      setSession(1500);
+      setCurrent({ sessionCurrent: 0, sleepCurrent: 0 });
+    }
   };
 
   const minutes = (cur: number): string => {
@@ -48,17 +56,17 @@ const App = () => {
     if (session === 0) {
       return (
         <>
-          <span className="timer">{minutes(sleep)}</span>
-          <span>:</span>
-          <span>{seconds(sleep)}</span>
+          <span id="time-left" className="timer">
+            {minutes(sleep)}:{seconds(sleep)}
+          </span>
         </>
       );
     } else {
       return (
         <>
-          <span className="timer">{minutes(session)}</span>
-          <span>:</span>
-          <span>{seconds(session)}</span>
+          <span id="time-left" className="timer">
+            {minutes(session)}:{seconds(session)}
+          </span>
         </>
       );
     }
@@ -72,38 +80,58 @@ const App = () => {
         <div className="break-container">
           <span id="break-label">Break Length</span>
           <div className="buttons">
-            <button onClick={() => setSleep(sleep + 60)} id="break-increment">
-              +
-            </button>
-            <span id="break-length">{power === false ? sleep / 60 : current.sleepCurrent}</span>
-            <button onClick={() => (sleep > 1 ? setSleep(sleep - 60) : sleep)} id="break-decrement">
-              -
-            </button>
+            {!power && (
+              <button onClick={() => setSleep(sleep + 60)} id="break-increment">
+                +
+              </button>
+            )}
+            <span id="break-length">
+              {power === false ? Math.floor(sleep / 60) : Math.floor(current.sleepCurrent / 60)}
+            </span>
+            {!power && (
+              <button onClick={() => (sleep > 1 ? setSleep(sleep - 60) : sleep)} id="break-decrement">
+                -
+              </button>
+            )}
           </div>
         </div>
 
         <div className="session-container">
           <span id="session-label">Session Length</span>
           <div className="buttons">
-            <button onClick={() => setSession(session + 60)} id="session-increment">
-              +
-            </button>
-            <span id="session-length">{power === false ? session / 60 : current.sessionCurrent}</span>
-            <button onClick={() => (session > 1 ? setSession(session - 60) : session)} id="session-decrement">
-              -
-            </button>
+            {!power && (
+              <button onClick={() => setSession(session + 60)} id="session-increment">
+                +
+              </button>
+            )}
+            <span id="session-length">
+              {power === false ? Math.floor(session / 60) : Math.floor(current.sessionCurrent / 60)}
+            </span>
+            {!power && (
+              <button onClick={() => (session > 1 ? setSession(session - 60) : session)} id="session-decrement">
+                -
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       <div className="session">
-        <h2>session</h2>
+        <h2 id="timer-label">session</h2>
         {display()}
       </div>
 
       <div className="control-buttons">
-        {!power ? <button onClick={handleStart}>start</button> : <button onClick={handlePause}>pause</button>}
-        <button onClick={handleRestart}>restart</button>
+        {!power ? (
+          <button id="start_stop" onClick={handleStart}>
+            start
+          </button>
+        ) : (
+          <button onClick={handlePause}>pause</button>
+        )}
+        <button id="reset" onClick={handleRestart}>
+          restart
+        </button>
       </div>
     </>
   );
