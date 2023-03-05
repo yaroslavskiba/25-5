@@ -89,7 +89,7 @@ const App = () => {
               {power === false ? Math.floor(sleep / 60) : Math.floor(current.sleepCurrent / 60)}
             </span>
             {!power && (
-              <button onClick={() => (sleep > 1 ? setSleep(sleep - 60) : sleep)} id="break-decrement">
+              <button onClick={() => (sleep >= 0 ? setSleep(sleep - 60) : setSleep(sleep))} id="break-decrement">
                 -
               </button>
             )}
@@ -108,7 +108,10 @@ const App = () => {
               {power === false ? Math.floor(session / 60) : Math.floor(current.sessionCurrent / 60)}
             </span>
             {!power && (
-              <button onClick={() => (session > 1 ? setSession(session - 60) : session)} id="session-decrement">
+              <button
+                onClick={() => (session >= 0 ? setSession(session - 60) : setSession(session))}
+                id="session-decrement"
+              >
                 -
               </button>
             )}
