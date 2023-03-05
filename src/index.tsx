@@ -52,26 +52,6 @@ const App = () => {
     return (cur - Math.floor(cur / 60) * 60).toString().padStart(2, '0');
   };
 
-  const display = () => {
-    if (session === 0) {
-      return (
-        <>
-          <span id="time-left" className="timer">
-            {minutes(sleep)}:{seconds(sleep)}
-          </span>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <span id="time-left" className="timer">
-            {minutes(session)}:{seconds(session)}
-          </span>
-        </>
-      );
-    }
-  };
-
   return (
     <>
       <h1>25 + 5 Clock</h1>
@@ -121,7 +101,19 @@ const App = () => {
 
       <div className="session">
         <h2 id="timer-label">session</h2>
-        {display()}
+        {session === 0 ? (
+          <>
+            <span id="time-left" className="timer">
+              {minutes(sleep)}:{seconds(sleep)}
+            </span>
+          </>
+        ) : (
+          <>
+            <span id="time-left" className="timer">
+              {minutes(session)}:{seconds(session)}
+            </span>
+          </>
+        )}
       </div>
 
       <div className="control-buttons">
