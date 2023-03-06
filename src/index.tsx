@@ -6,7 +6,8 @@ const App = () => {
   const [session, setSession] = useState(1500);
   const [sleep, setSleep] = useState(300);
   const [power, setPower] = useState(false);
-  const [current, setCurrent] = useState({ sessionCurrent: 0, sleepCurrent: 0 });
+  console.log(session);
+  //TODO: Добавить текущее состояние
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -23,23 +24,19 @@ const App = () => {
   }, [power, session, setSleep, setSession]);
 
   const handleStart = () => {
-    setCurrent({ sessionCurrent: session, sleepCurrent: sleep });
     setPower(true);
   };
   const handlePause = () => {
+    // TODO: При нажатии на паузу - заносить в состояние
     setPower(false);
   };
   const handleRestart = () => {
-    if (session === 0 && sleep === 0) {
-      setSleep(300);
-      setSession(1500);
-      setCurrent({ sessionCurrent: 0, sleepCurrent: 0 });
-    } else {
-      handlePause();
-      setSleep(300);
-      setSession(1500);
-      setCurrent({ sessionCurrent: 0, sleepCurrent: 0 });
+    if (session === 1500 && sleep === 300) {
+      return;
     }
+    handlePause();
+    setSleep(300);
+    setSession(1500);
   };
 
   const minutes = (cur: number): string => {
@@ -52,6 +49,38 @@ const App = () => {
     return (cur - Math.floor(cur / 60) * 60).toString().padStart(2, '0');
   };
 
+  const handleIncrease = (state: string): void => {
+    if (power) return;
+    switch (state) {
+      case 'break':
+        if (sleep < 3600) {
+          setSleep(sleep + 60);
+        }
+        break;
+      case 'session':
+        if (session < 3600) {
+          setSession(session + 60);
+        }
+        break;
+    }
+  };
+
+  const handleDecrease = (state: string): void => {
+    if (power) return;
+    switch (state) {
+      case 'break':
+        if (sleep > 60) {
+          setSleep(sleep - 60);
+        }
+        break;
+      case 'session':
+        if (session > 60) {
+          setSession(session - 60);
+        }
+        break;
+    }
+  };
+
   return (
     <>
       <h1>25 + 5 Clock</h1>
@@ -61,15 +90,16 @@ const App = () => {
           <span id="break-label">Break Length</span>
           <div className="buttons">
             {!power && (
-              <button onClick={() => setSleep(sleep + 60)} id="break-increment">
+              <button onClick={() => handleIncrease('break')} id="break-increment">
                 +
               </button>
             )}
-            <span id="break-length">
-              {power === false ? Math.floor(sleep / 60) : Math.floor(current.sleepCurrent / 60)}
-            </span>
+
+            {/* //TODO: Записать текущее состояние сюда */}
+
+            <span id="break-length">{Math.floor(sleep / 60)}</span>
             {!power && (
-              <button onClick={() => (sleep >= 0 ? setSleep(sleep - 60) : setSleep(sleep))} id="break-decrement">
+              <button onClick={() => handleDecrease('break')} id="break-decrement">
                 -
               </button>
             )}
@@ -80,18 +110,16 @@ const App = () => {
           <span id="session-label">Session Length</span>
           <div className="buttons">
             {!power && (
-              <button onClick={() => setSession(session + 60)} id="session-increment">
+              <button onClick={() => handleIncrease('session')} id="session-increment">
                 +
               </button>
             )}
-            <span id="session-length">
-              {power === false ? Math.floor(session / 60) : Math.floor(current.sessionCurrent / 60)}
-            </span>
+
+            {/* //TODO: Записать текущее состояние сюда */}
+
+            <span id="session-length">{Math.floor(session / 60)}</span>
             {!power && (
-              <button
-                onClick={() => (session >= 0 ? setSession(session - 60) : setSession(session))}
-                id="session-decrement"
-              >
+              <button onClick={() => handleDecrease('session')} id="session-decrement">
                 -
               </button>
             )}
