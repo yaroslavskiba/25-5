@@ -109,56 +109,55 @@ const App = () => {
   };
 
   return (
-    <div className="App">
-      <div className="pomodoro">
-        <div className="length-control">
-          <div id="break-label" className="label">
-            Break Length
-          </div>
-          <div className="controls">
-            <button id="break-increment" onClick={handleBreakIncrement} disabled={state.power}>
-              +
-            </button>
-            <span id="break-length" className="length">
-              {state.sleep / 60}
-            </span>
-            <button id="break-decrement" onClick={handleBreakDecrement} disabled={state.power}>
-              -
-            </button>
-          </div>
-        </div>
-        <div className="length-control">
-          <div id="session-label" className="label">
-            Session Length
-          </div>
-          <div className="controls">
-            <button id="session-increment" onClick={handleSessionIncrement} disabled={state.power}>
-              +
-            </button>
-            <span id="session-length" className="length">
-              {state.session / 60}
-            </span>
-            <button id="session-decrement" onClick={handleSessionDecrement} disabled={state.power}>
-              -
-            </button>
-          </div>
-        </div>
-        <div id="timer-label">{timerLabel}</div>
-        <div id="time-left">{formatTime(timeLeft)}</div>
-        <div className="timer-control">
-          <button id="start_stop" onClick={handleStartStop}>
-            {!state.power ? 'Start' : isPaused ? 'Resume' : 'Pause'}
+    <div className="pomodoro">
+      <h1 className="title">25/5 clock</h1>
+      <div className="length-control">
+        <h2 id="break-label" className="label">
+          Break Length
+        </h2>
+        <div className="controls">
+          <button id="break-increment" onClick={handleBreakIncrement} disabled={state.power}>
+            +
           </button>
-          <button id="reset" onClick={handleResetClick}>
-            Reset
+          <span id="break-length" className="length">
+            {state.sleep / 60}
+          </span>
+          <button id="break-decrement" onClick={handleBreakDecrement} disabled={state.power}>
+            -
           </button>
         </div>
-        <audio
-          id="beep"
-          src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
-          ref={beep}
-        />
       </div>
+      <div className="length-control">
+        <h2 id="session-label" className="label">
+          Session Length
+        </h2>
+        <div className="controls">
+          <button id="session-increment" onClick={handleSessionIncrement} disabled={state.power}>
+            +
+          </button>
+          <span id="session-length" className="length">
+            {state.session / 60}
+          </span>
+          <button id="session-decrement" onClick={handleSessionDecrement} disabled={state.power}>
+            -
+          </button>
+        </div>
+      </div>
+      <span id="timer-label">{timerLabel}</span>
+      <span id="time-left">{formatTime(timeLeft)}</span>
+      <div className="timer-control">
+        <button id="start_stop" onClick={handleStartStop}>
+          {!state.power ? 'Start' : isPaused ? 'Resume' : 'Pause'}
+        </button>
+        <button id="reset" onClick={handleResetClick}>
+          Reset
+        </button>
+      </div>
+      <audio
+        id="beep"
+        src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+        ref={beep}
+      />
     </div>
   );
 };
