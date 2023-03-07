@@ -1,162 +1,165 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import React, { useEffect, useState, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 
+const stateTimePower = {
+  session: 1500,
+  sleep: 300,
+  power: false,
+};
+
 const App = () => {
-  const [session, setSession] = useState(1500);
-  const [sleep, setSleep] = useState(300);
-  const [power, setPower] = useState(false);
-  console.log(session);
-  //TODO: Добавить текущее состояние
+  const [state, setState] = useState(stateTimePower);
+  const [timerLabel, setTimerLabel] = useState('Session');
+  const [timeLeft, setTimeLeft] = useState(state.session);
+  const [intervalT, setIntervalT] = useState<NodeJS.Timeout | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const beep = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (power) {
-        if (session === 0) {
-          setSleep((sleep) => (sleep > 0 ? sleep - 1 : 0));
-        } else {
-          setSession((session) => (session > 0 ? session - 1 : 0));
-        }
+    if (timeLeft < 0) {
+      clearInterval(intervalT!);
+      setIntervalT(null);
+      beep.current?.play();
+      setTimeout(() => {
+        beep.current?.pause();
+      }, 1000);
+      if (timerLabel === 'Session') {
+        setTimerLabel('Break');
+        setTimeLeft(state.sleep);
+        startCountdown();
+      } else {
+        setTimerLabel('Session');
+        setTimeLeft(state.session);
+        startCountdown();
       }
+    }
+  }, [timeLeft, intervalT, state.sleep, state.session, timerLabel]);
+
+  const handleStartStop = () => {
+    if (!state.power) {
+      setState({ ...state, power: true });
+      startCountdown();
+    } else {
+      setIsPaused(!isPaused);
+      if (isPaused) {
+        startCountdown();
+      } else {
+        clearInterval(intervalT!);
+      }
+    }
+  };
+
+  const handleResetClick = () => {
+    clearInterval(intervalT!);
+    setIntervalT(null);
+    beep.current?.pause();
+    if (beep.current) {
+      beep.current.currentTime = 0;
+    }
+    setIsPaused(false);
+    setTimerLabel('Session');
+    setState(stateTimePower);
+    setTimeLeft(stateTimePower.session);
+  };
+
+  const handleSessionIncrement = () => {
+    if (state.session < 3600) {
+      setState({ ...state, session: state.session + 60 });
+      setTimeLeft(state.session + 60);
+    }
+  };
+
+  const handleSessionDecrement = () => {
+    if (state.session > 60) {
+      setState({ ...state, session: state.session - 60 });
+      setTimeLeft(state.session - 60);
+    }
+  };
+
+  const handleBreakIncrement = () => {
+    if (state.sleep < 3600) {
+      setState({ ...state, sleep: state.sleep + 60 });
+    }
+  };
+
+  const handleBreakDecrement = () => {
+    if (state.sleep > 60) {
+      setState({ ...state, sleep: state.sleep - 60 });
+    }
+  };
+
+  const startCountdown = () => {
+    const id = setInterval(() => {
+      setTimeLeft((prevTimeLeft) => prevTimeLeft - 1);
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [power, session, setSleep, setSession]);
-
-  const handleStart = () => {
-    setPower(true);
-  };
-  const handlePause = () => {
-    // TODO: При нажатии на паузу - заносить в состояние
-    setPower(false);
-  };
-  const handleRestart = () => {
-    if (session === 1500 && sleep === 300) {
-      return;
-    }
-    handlePause();
-    setSleep(300);
-    setSession(1500);
+    setIntervalT(id);
   };
 
-  const minutes = (cur: number): string => {
-    return Math.floor(cur / 60)
+  const formatTime = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60)
       .toString()
       .padStart(2, '0');
-  };
+    const seconds = (timeInSeconds % 60).toString().padStart(2, '0');
 
-  const seconds = (cur: number): string => {
-    return (cur - Math.floor(cur / 60) * 60).toString().padStart(2, '0');
-  };
-
-  const handleIncrease = (state: string): void => {
-    if (power) return;
-    switch (state) {
-      case 'break':
-        if (sleep < 3600) {
-          setSleep(sleep + 60);
-        }
-        break;
-      case 'session':
-        if (session < 3600) {
-          setSession(session + 60);
-        }
-        break;
-    }
-  };
-
-  const handleDecrease = (state: string): void => {
-    if (power) return;
-    switch (state) {
-      case 'break':
-        if (sleep > 60) {
-          setSleep(sleep - 60);
-        }
-        break;
-      case 'session':
-        if (session > 60) {
-          setSession(session - 60);
-        }
-        break;
-    }
+    return `${minutes}:${seconds}`;
   };
 
   return (
-    <>
-      <h1>25 + 5 Clock</h1>
-
-      <div className="break-session">
-        <div className="break-container">
-          <span id="break-label">Break Length</span>
-          <div className="buttons">
-            {!power && (
-              <button onClick={() => handleIncrease('break')} id="break-increment">
-                +
-              </button>
-            )}
-
-            {/* //TODO: Записать текущее состояние сюда */}
-
-            <span id="break-length">{Math.floor(sleep / 60)}</span>
-            {!power && (
-              <button onClick={() => handleDecrease('break')} id="break-decrement">
-                -
-              </button>
-            )}
+    <div className="App">
+      <div className="pomodoro">
+        <div className="length-control">
+          <div id="break-label" className="label">
+            Break Length
+          </div>
+          <div className="controls">
+            <button id="break-increment" onClick={handleBreakIncrement} disabled={state.power}>
+              +
+            </button>
+            <span id="break-length" className="length">
+              {state.sleep / 60}
+            </span>
+            <button id="break-decrement" onClick={handleBreakDecrement} disabled={state.power}>
+              -
+            </button>
           </div>
         </div>
-
-        <div className="session-container">
-          <span id="session-label">Session Length</span>
-          <div className="buttons">
-            {!power && (
-              <button onClick={() => handleIncrease('session')} id="session-increment">
-                +
-              </button>
-            )}
-
-            {/* //TODO: Записать текущее состояние сюда */}
-
-            <span id="session-length">{Math.floor(session / 60)}</span>
-            {!power && (
-              <button onClick={() => handleDecrease('session')} id="session-decrement">
-                -
-              </button>
-            )}
+        <div className="length-control">
+          <div id="session-label" className="label">
+            Session Length
+          </div>
+          <div className="controls">
+            <button id="session-increment" onClick={handleSessionIncrement} disabled={state.power}>
+              +
+            </button>
+            <span id="session-length" className="length">
+              {state.session / 60}
+            </span>
+            <button id="session-decrement" onClick={handleSessionDecrement} disabled={state.power}>
+              -
+            </button>
           </div>
         </div>
-      </div>
-
-      <div className="session">
-        <h2 id="timer-label">session</h2>
-        {session === 0 ? (
-          <>
-            <span id="time-left" className="timer">
-              {minutes(sleep)}:{seconds(sleep)}
-            </span>
-          </>
-        ) : (
-          <>
-            <span id="time-left" className="timer">
-              {minutes(session)}:{seconds(session)}
-            </span>
-          </>
-        )}
-      </div>
-
-      <div className="control-buttons">
-        {!power ? (
-          <button id="start_stop" onClick={handleStart}>
-            start
+        <div id="timer-label">{timerLabel}</div>
+        <div id="time-left">{formatTime(timeLeft)}</div>
+        <div className="timer-control">
+          <button id="start_stop" onClick={handleStartStop}>
+            {!state.power ? 'Start' : isPaused ? 'Resume' : 'Pause'}
           </button>
-        ) : (
-          <button onClick={handlePause}>pause</button>
-        )}
-        <button id="reset" onClick={handleRestart}>
-          restart
-        </button>
+          <button id="reset" onClick={handleResetClick}>
+            Reset
+          </button>
+        </div>
+        <audio
+          id="beep"
+          src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+          ref={beep}
+        />
       </div>
-    </>
+    </div>
   );
 };
 
